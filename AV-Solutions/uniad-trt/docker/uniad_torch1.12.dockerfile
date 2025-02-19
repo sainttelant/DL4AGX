@@ -1,39 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2022-2023 DerryHub. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
-
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-
-# http://www.apache.org/licenses/LICENSE-2.0
-
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-
-
-# SPDX-FileCopyrightText: Copyright (c) 2023-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: Apache-2.0
-
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-
-# http://www.apache.org/licenses/LICENSE-2.0
-
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# Modified from https://github.com/DerryHub/BEVFormer_tensorrt/blob/main/docker/Dockerfile
-# Removed TensorRT, NGC client, and mmdeploy installation related code
-# Added UniAD environment support and updated TORCH_CUDA_ARCH_LIST
-
 
 ARG CUDA_VERSION=11.8.0
 ARG OS_VERSION=20.04
@@ -41,6 +6,7 @@ ARG OS_VERSION=20.04
 FROM nvidia/cuda:${CUDA_VERSION}-cudnn8-devel-ubuntu${OS_VERSION}
 LABEL maintainer="NVIDIA CORPORATION"
 
+ENV TRT_VERSION 8.6.1.6
 SHELL ["/bin/bash", "-c"]
 
 # Setup user account
@@ -55,7 +21,7 @@ RUN mkdir -p /workspace && chown trtuser /workspace
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
 
-# Install requried libraries
+# Install required libraries
 RUN apt-get update && apt-get install -y software-properties-common
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -137,3 +103,42 @@ COPY ./nuscenes /usr/local/lib/python3.8/dist-packages/nuscenes
 RUN pip install torchmetrics==0.11.4
 RUN pip install pandas==1.4.4
 RUN pip install onnx==1.16.2 onnx_graphsurgeon==0.5.2
+
+# Install TensorRT
+# Install TensorRT
+RUN if [ "${CUDA_VERSION}" = "10.2" ] ; then \
+    v="${TRT_VERSION%.*}-1+cuda${CUDA_VERSION}" &&\
+    apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub &&\
+    apt-get update &&\
+    sudo apt-get install libnvinfer8=${v} libnvonnxparsers8=${v} libnvparsers8=${v} libnvinfer-plugin8=${v} \
+        libnvinfer-dev=${v} libnvonnxparsers-dev=${v} libnvparsers-dev=${v} libnvinfer-plugin-dev=${v} \
+        python3-libnvinfer=${v} libnvinfer-dispatch8=${v} libnvinfer-dispatch-dev=${v} libnvinfer-lean8=${v} \
+        libnvinfer-lean-dev=${v} libnvinfer-vc-plugin8=${v} libnvinfer-vc-plugin-dev=${v} \
+        libnvinfer-headers-dev=${v} libnvinfer-headers-plugin-dev=${v}; \
+else \
+    ver="${CUDA_VERSION%.*}" &&\
+    if [ "${ver%.*}" = "12" ] ; then \
+        ver="12.0"; \
+    fi &&\
+    v="${TRT_VERSION}-1+cuda${ver}" &&\
+    apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub &&\
+    apt-get update &&\
+    sudo apt-get -y install libnvinfer8=${v} libnvonnxparsers8=${v} libnvparsers8=${v} libnvinfer-plugin8=${v} \
+        libnvinfer-dev=${v} libnvonnxparsers-dev=${v} libnvparsers-dev=${v} libnvinfer-plugin-dev=${v} \
+        python3-libnvinfer=${v} libnvinfer-dispatch8=${v} libnvinfer-dispatch-dev=${v} libnvinfer-lean8=${v} \
+        libnvinfer-lean-dev=${v} libnvinfer-vc-plugin8=${v} libnvinfer-vc-plugin-dev=${v} \
+        libnvinfer-headers-dev=${v} libnvinfer-headers-plugin-dev=${v}; \
+fi
+
+
+
+
+# Set environment and working directory
+ENV TRT_LIBPATH /usr/lib/x86_64-linux-gnu
+ENV TRT_OSSPATH /workspace/TensorRT
+ENV PATH="/workspace/TensorRT/build/out:${PATH}:/usr/local/bin/ngc-cli"
+ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${TRT_OSSPATH}/build/out:${TRT_LIBPATH}"
+WORKDIR /workspace
+
+USER trtuser
+RUN ["/bin/bash"]

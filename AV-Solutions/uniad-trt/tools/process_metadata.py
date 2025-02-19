@@ -21,7 +21,7 @@ import tqdm
 import torch
 import copy
 from mmcv import Config
-from third_party.uniad_mmdet3d.datasets.builder import build_dataloader, build_dataset
+from uniad_mmdet3d.datasets.builder import build_dataloader, build_dataset
 
 """
 The metadata that needed to be prepared before engine inference:
