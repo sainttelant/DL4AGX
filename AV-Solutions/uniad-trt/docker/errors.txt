@@ -1,1 +1,1 @@
-export LD_LIBRARY_PATH=/workspace/DL4AGX/AV-Solutions/uniad-trt/UniAD/TensorRT/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/workspace/Bev/DL4AGX/AV-Solutions/uniad-trt/UniAD/TensorRT/lib:$LD_LIBRARY_PATH

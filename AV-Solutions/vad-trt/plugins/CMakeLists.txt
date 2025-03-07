@@ -13,18 +13,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.12)
 project(bev_deploy LANGUAGES C CXX CUDA)
 
-option(TARGET "x86_64")
 
+# be attention: set build target here before deploying in targets
+set(TARGET "aarch64")
+find_package(CUDA REQUIRED)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_FLAGS "-fPIC -O0 -g")
 set(CMAKE_CXX_FLAGS "-fPIC -O0 -g")
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS}")
 set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -std=c++14 --expt-relaxed-constexpr --compiler-options -fPIC -O2 -Xptxas=-v")
 
+message(STATUS ">>>>>>>>>>Building before compiling for ${TARGET}")
+
 if(${TARGET} MATCHES "aarch64")
+message(STATUS">>>>>>>>>>Building for AArch64")
     set(CMAKE_C_COMPILER   /usr/bin/aarch64-linux-gnu-gcc)
     set(CMAKE_CXX_COMPILER /usr/bin/aarch64-linux-gnu-g++)
     set(CMAKE_FIND_ROOT_PATH "/usr/aarch64-linux-gnu")
@@ -56,6 +61,9 @@ if(${TARGET} MATCHES "aarch64")
     set(DEPS ${DEPS} nvcudla cudla cuda cudart)
     find_package(CUDA REQUIRED)
 elseif(${TARGET} MATCHES "x86_64")
+    message(STATUS">>>>>>>>>>Building for x86_64")
+    message(STATUS "TRT_ROOT: $ENV{TRT_ROOT}")
+    set(CUDA_TOOLKIT_ROOT_DIR     /usr/local/cuda-11.8/)
     option(TRT_ROOT "$ENV{TRT_ROOT}")
     # linux x86
     find_package(CUDA REQUIRED)

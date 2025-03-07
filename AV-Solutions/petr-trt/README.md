@@ -26,7 +26,7 @@ git submodule update --init --recursive
 cd /workspace
 git clone https://github.com/megvii-research/PETR
 cd PETR
-git apply /workspace/DL4AGX/AV-Solutions/petr-trt/patch.diff
+git apply /workspace/Bev/DL4AGX/AV-Solutions/petr-trt/patch.diff
 git clone https://github.com/open-mmlab/mmdetection3d.git -b v0.17.1
 ```
 
@@ -65,7 +65,7 @@ This command line is expected to output the benchmark results. This environment 
 > **NOTE**
 > 1. For the best user experience, we highly recommend use **torch >= 1.14**. You may also build the docker with given [./dockerfile](./dockerfile). To build the docker, here is the example command line. You may change the argument for volume mapping according to your setup.
 > ```bash
-> cd /workspace/DL4AGX/AV-Solutions/petr-trt
+> cd /workspace/Bev/DL4AGX/AV-Solutions/petr-trt
 > docker build --network=host -f dockerfile . -t petr-trt
 > docker run --name=petr-trt -d -it --rm --shm-size=4096m --privileged --gpus all -it --network=host \
 >    -v /workspace:/workspace -v <path to nuscenes>:/data \
@@ -75,16 +75,16 @@ This command line is expected to output the benchmark results. This environment 
 ## Export to ONNX on x86
 To setup the deployment environment, you may run the following commands. Please note that we will export the onnx inside petr-trt.
 ```bash
-cd /workspace/DL4AGX/AV-Solutions/petr-trt/export_eval
+cd /workspace/Bev/DL4AGX/AV-Solutions/petr-trt/export_eval
 ln -s /workspace/PETR/data data # create a soft-link to the data folder
 ln -s /workspace/PETR/mmdetection3d mmdetection3d # create a soft-link to the mmdetection3d folder
-export PYTHONPATH=.:/workspace/PETR/:/workspace/DL4AGX/AV-Solutions/petr-trt/export_eval/
+export PYTHONPATH=.:/workspace/PETR/:/workspace/Bev/DL4AGX/AV-Solutions/petr-trt/export_eval/
 ```
 
 ### Export PETRv1
 To export the ONNX of `PETRv1`
 ```bash
-cd /workspace/DL4AGX/AV-Solutions/petr-trt/export_eval
+cd /workspace/Bev/DL4AGX/AV-Solutions/petr-trt/export_eval
 python v1/v1_export_to_onnx.py /workspace/PETR/projects/configs/petr/petr_vovnet_gridmask_p4_800x320.py /workspace/PETR/ckpts/PETR-vov-p4-800x320_e24.pth --eval bbox
 ```
 This script will create `PETRv1.extract_feat.onnx` and `PETRv1.pts_bbox_head.forward.onnx` inside `onnx_files`.
@@ -97,7 +97,7 @@ So, we modify the behavior of function `extract_feat` when we export the model.
 It will use cached feature map as input instead of recomputing them.
 
 ```bash
-cd /workspace/DL4AGX/AV-Solutions/petr-trt/export_eval
+cd /workspace/Bev/DL4AGX/AV-Solutions/petr-trt/export_eval
 python v2/v2_export_to_onnx.py /workspace/PETR/projects/configs/petrv2/petrv2_vovnet_gridmask_p4_800x320.py /workspace/PETR/ckpts/PETRv2-vov-p4-800x320_e24.pth --eval bbox
 ```
 This script will create `PETRv2.extract_feat.onnx` and `PETRv2.pts_bbox_head.forward.onnx` inside `onnx_files`.
@@ -121,7 +121,7 @@ We provide a script that will load and create engine files for the four simplifi
 export TRT_ROOT=<path to your tensorrt dir>
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRT_ROOT/lib
 
-cd /workspace/DL4AGX/AV-Solutions/petr-trt/export_eval
+cd /workspace/Bev/DL4AGX/AV-Solutions/petr-trt/export_eval
 bash onnx2trt.sh
 ```
 The above script builds TensorRT engines in FP16 precision as an example.
@@ -129,7 +129,7 @@ The above script builds TensorRT engines in FP16 precision as an example.
 3. Run benchmark with TensorRT
 ```bash
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRT_ROOT/lib
-cd /workspace/DL4AGX/AV-Solutions/petr-trt/export_eval
+cd /workspace/Bev/DL4AGX/AV-Solutions/petr-trt/export_eval
 # benchmark PETRv1
 python v1/v1_evaluate_trt.py /workspace/PETR/projects/configs/petr/petr_vovnet_gridmask_p4_800x320.py /workspace/PETR/ckpts/PETR-vov-p4-800x320_e24.pth --eval bbox
 # benchmark PETRv2
@@ -181,7 +181,7 @@ This will dump necessary data files to `petr-trt/export_eval/demo/data/`. Please
 
 We can then move them by
 ```bash
-cd /workspace/DL4AGX/AV-Solutions/petr-trt/
+cd /workspace/Bev/DL4AGX/AV-Solutions/petr-trt/
 cp -r export_eval/demo/data/ app/demo/
 cp -r export_eval/onnx_files/*.onnx app/demo/onnx_files/
 ```

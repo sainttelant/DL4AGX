@@ -43,4 +43,16 @@ def custom_handler(g, *args, **kwargs):
 
     return sym_help._unimplemented(node_name, "unimplemented")
 
-register_custom_op_symbolic("prim::PythonOp", custom_handler, 1)
+symbolic_name = "prim::PythonOp"
+opset_version = 1
+
+try:
+    register_custom_op_symbolic(symbolic_name, custom_handler, opset_version)
+    print(f"Operator {symbolic_name} registered successfully.")
+except RuntimeError as e:
+    if "domain" in str(e):
+        print(f"Operator {symbolic_name} is already registered.")
+    else:
+        raise e
+
+#register_custom_op_symbolic("prim::PythonOp", custom_handler, 1)

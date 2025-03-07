@@ -37,7 +37,7 @@ This command line is expected to output the benchmark results. This environment 
 > ```
 > 3. For best user experience, we recommend use **torch >= 1.12**. You may also build the docker with given [./dockerfile](./dockerfile). To build the docker, here is the example command line. You may change the argument for volume mapping according to your setup.
 > ```bash
-> cd /workspace/DL4AGX/AV-Solutions/vad-trt
+> cd /workspace/Bev/DL4AGX/AV-Solutions/vad-trt
 > docker build --network=host -f dockerfile . -t vad-trt
 > docker run --name=vad-trt -d -it --rm --shm-size=4096m --privileged --gpus all -it --network=host \
 >    -v /workspace:/workspace -v <path to nuscenes>:/data \
@@ -47,7 +47,7 @@ This command line is expected to output the benchmark results. This environment 
 ## Export to ONNX
 To setup the deployment environment, you may run the following commands.
 ```bash
-cd /workspace/DL4AGX/AV-Solutions/vad-trt/export_eval
+cd /workspace/Bev/DL4AGX/AV-Solutions/vad-trt/export_eval
 ln -s /workspace/VAD/data data # create a soft-link to the data folder
 export PYTHONPATH=.:/workspace/VAD
 ```
@@ -61,7 +61,7 @@ To deploy the ONNX of the subsequent frames, you may run
 ```bash
 python export_prev.py /workspace/VAD/projects/configs/VAD/VAD_tiny_stage_2.py /workspace/VAD/ckpts/VAD_tiny.pth --launcher none --eval bbox --tmpdir tmp
 ```
-After these two command lines, you are expected to see `vadv1.extract_img_feat`, `vadv1.pts_bbox_head.forward`, `vadv1_prev.pts_bbox_head.forward` under `/workspace/DL4AGX/AV-Solutions/vad-trt/export_eval/scratch`. Each folder contains dumped input and output tensors in binary format, and an ONNX file begin with `sim_`.
+After these two command lines, you are expected to see `vadv1.extract_img_feat`, `vadv1.pts_bbox_head.forward`, `vadv1_prev.pts_bbox_head.forward` under `/workspace/Bev/DL4AGX/AV-Solutions/vad-trt/export_eval/scratch`. Each folder contains dumped input and output tensors in binary format, and an ONNX file begin with `sim_`.
 
 ## Benchmark and Evaluation with TensorRT on x86
 We provide `test_tensorrt.py` to run benchmark with TensorRT. It will produce similar result as the original benchmark with pytorch.

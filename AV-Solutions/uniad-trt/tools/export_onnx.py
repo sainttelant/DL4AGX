@@ -442,6 +442,7 @@ def main():
     l2g_r_mat0 = torch.zeros(1, 3, 3)
     l2g_t0 = torch.zeros(1,3)
     for iid in tqdm(range(6)):
+        print(">>>>>>>>>-----current iid is%d"%(iid))
         inputs = {}
         for key in input_shapes.keys():
             if os.path.isfile(onnx_export_input+key+'/'+str(iid)+'.npy'):

@@ -1,0 +1,8 @@
+sudo nano /etc/apt/sources.list
+and add the line
+
+deb http://archive.ubuntu.com/ubuntu trusty main restricted
+and run
+
+apt-get update
+apt-get install gcc
