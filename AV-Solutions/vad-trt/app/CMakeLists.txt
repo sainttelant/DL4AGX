@@ -16,7 +16,9 @@
 cmake_minimum_required(VERSION 3.14)
 set(APP vad)
 project(${APP}_app LANGUAGES CXX CUDA)
-option(TARGET "x86_64")
+
+find_package(CUDA REQUIRED)
+set(TARGET "aarch64")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 17)
@@ -40,10 +42,10 @@ if(${TARGET} MATCHES "aarch64")
     set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
     set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 
-    set(CUDA_TOOLKIT_ROOT_DIR     /usr/local/cuda-11.4/)
+    set(CUDA_TOOLKIT_ROOT_DIR     /usr/local/cuda-12.2/)
     set(CUDA_TOOLKIT_TARGET_NAME  "aarch64-linux")
-    set(CUDA_TOOLKIT_INCLUDE      /usr/local/cuda-11.4/targets/aarch64-linux/include)
-    set(CUDA_CUDART_LIBRARY       /usr/local/cuda-11.4/targets/aarch64-linux/lib/libcudart.so)    
+    set(CUDA_TOOLKIT_INCLUDE      /usr/local/cuda-12.2/targets/aarch64-linux/include)
+    set(CUDA_CUDART_LIBRARY       /usr/local/cuda-12.2/targets/aarch64-linux/lib/libcudart.so)    
     set(CUDA_HOST_COMPILER  "/usr/bin/aarch64-linux-gnu-g++" CACHE STRING "host compiler" FORCE)
 
     set(TENSORRT_INCLUDE_DIRS /usr/include/aarch64-linux-gnu)
@@ -54,8 +56,8 @@ if(${TARGET} MATCHES "aarch64")
         ${TENSORRT_INCLUDE_DIRS})
     link_directories(
         /drive/drive-linux/lib-target
-        /usr/local/cuda-11.4/targets/aarch64-linux/lib/
-        /usr/local/cuda-11.4/targets/aarch64-linux/lib/stubs/
+        /usr/local/cuda-12.2/targets/aarch64-linux/lib/
+        /usr/local/cuda-12.2/targets/aarch64-linux/lib/stubs/
         ${TENSORRT_LIBRARY_DIRS})
     set(DEPS ${DEPS} nvcudla cudla cuda cudart)
     find_package(CUDA REQUIRED)
@@ -77,16 +79,18 @@ elseif(${TARGET} MATCHES "x86_64")
 else()
 endif()
 
-include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/lib ${CMAKE_SOURCE_DIR}/lib/cuOSD)
+include_directories(${CMAKE_SOURCE_DIR}/include 
+${CMAKE_SOURCE_DIR}/lib/ 
+${CMAKE_SOURCE_DIR}/lib/cuOSD/src)
 
 add_definitions(-DENABLE_TEXT_BACKEND_STB)
 
-cuda_add_library(${APP}_cu ${CMAKE_SOURCE_DIR}/lib/visualize.cu ${CMAKE_SOURCE_DIR}/lib/cuOSD/cuosd_kernel.cu)
+cuda_add_library(${APP}_cu ${CMAKE_SOURCE_DIR}/lib/visualize.cu ${CMAKE_SOURCE_DIR}/lib/cuOSD/src/cuosd_kernel.cu)
 set_target_properties(${APP}_cu PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 add_executable(${APP}_app main.cpp 
                           ${CMAKE_SOURCE_DIR}/lib/visualize.cpp 
                           ${CMAKE_SOURCE_DIR}/lib/tensor.cpp 
-                          ${CMAKE_SOURCE_DIR}/lib/cuOSD/cuosd.cpp
-                          ${CMAKE_SOURCE_DIR}/lib/cuOSD/textbackend/backend.cpp ${CMAKE_SOURCE_DIR}/lib/cuOSD/textbackend/stb.cpp)
+                          ${CMAKE_SOURCE_DIR}/lib/cuOSD/src/cuosd.cpp
+                          ${CMAKE_SOURCE_DIR}/lib/cuOSD/src/textbackend/backend.cpp ${CMAKE_SOURCE_DIR}/lib/cuOSD/src/textbackend/stb.cpp)
 target_link_libraries(${APP}_app ${APP}_cu nvinfer ${CUDA_LIBRARIES} ${DEPS} nlohmann_json::nlohmann_json)

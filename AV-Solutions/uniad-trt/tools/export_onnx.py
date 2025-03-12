@@ -443,6 +443,7 @@ def main():
     l2g_r_mat0 = torch.zeros(1, 3, 3)
     l2g_t0 = torch.zeros(1,3)
     for iid in tqdm(range(6)):
+        print("current iid is <<<<<<<<<<<<<%d \n"%(iid))
         inputs = {}
         for key in input_shapes.keys():
             if os.path.isfile(onnx_export_input+key+'/'+str(iid)+'.npy'):
@@ -510,7 +511,10 @@ def main():
             np.save(onnx_export_output+output_name[i]+'/'+str(iid)+'.npy', out.detach().cpu().numpy())
 
         if iid==5:
-            print('start deploying iid: ', iid)
+            print('start deploying iid: <<<<<<<<<<', iid)
+            print('start deploying iid: <<<<<<<<<<', iid)
+            print('start deploying iid: <<<<<<<<<<', iid)
+            print('start deploying iid: <<<<<<<<<<', iid)
             model.forward = model.forward_uniad_trt
             input_name = list(input_shapes.keys())
             output_name = list(output_shapes.keys())

@@ -48,7 +48,7 @@
 #include <tgmath.h>
 #include <utility>
 
-#include <cuOSD/cuosd.h>
+#include "cuosd.h"
 #include "tensor.h"
 #include "visualize.hpp"
 

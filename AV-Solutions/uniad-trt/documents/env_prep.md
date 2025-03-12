@@ -8,7 +8,7 @@ cp -r ./python-sdk/nuscenes ../../docker
 Step 2: build docker image
 ```
 cd ../../docker
-docker build -t uniad_torch1.12 -f uniad_torch1.12.dockerfile .
+docker build --build-arg TMPDIR=/home/wilson/disklarge/tmp -t uniad_wilson_torch1.12 -f uniad_torch1.12.dockerfile .
 ```
 
 <- Last Page: [Project Installation](proj_setup.md)

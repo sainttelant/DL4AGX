@@ -34,8 +34,15 @@ set(CUDA_LIBRARY_DIRS ${CUDA_TOOLKIT_ROOT_DIR}/lib64)
 
 set(CMAKE_CXX_FLAGS_RELEASE "-Wno-deprecated-declarations -O3 -DENABLE_TEXT_BACKEND_STB")
 set(CMAKE_CXX_FLAGS_DEBUG "-Wno-deprecated-declarations -O0 -g -DENABLE_TEXT_BACKEND_STB")
-# add_compile_options(-W)
-add_compile_options(-std=c++14)
+#add_compile_options(-W)
+add_compile_options(-std=c++11)
+
+set(SMS 75 80 86 87)
+foreach(sm ${SMS})
+	set(GENCODE ${GENCODE} -gencode arch=compute_${sm},code=sm_${sm})
+endforeach()
+set(HIGHEST_SM 87)
+set(GENCODE ${GENCODE} -gencode arch=compute_${HIGHEST_SM},code=compute_${HIGHEST_SM})
 
 if(${CMAKE_HOST_SYSTEM_PROCESSOR} STREQUAL  "aarch64")
   set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}
@@ -123,7 +130,11 @@ file(GLOB_RECURSE PLUGIN_FILES
 set(SHARED_TARGET uniad_plugin)
 
 add_library(${SHARED_TARGET} SHARED ${PLUGIN_FILES})
-target_compile_options(${SHARED_TARGET} PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-arch=sm_${TARGET_GPU_SM}>)
+target_compile_options(${SHARED_TARGET} PRIVATE 
+
+$<$<COMPILE_LANGUAGE:CUDA>:-arch=sm_${TARGET_GPU_SM} -Xcompiler -Wno-error=return-type>
+$<$<COMPILE_LANGUAGE:CXX>:-Wno-error=return-type>
+)
 
 target_link_libraries(${SHARED_TARGET} PUBLIC cudnn nvinfer cublas)
 set_target_properties(${SHARED_TARGET} PROPERTIES CUDA_ARCHITECTURES "${TARGET_GPU_SM}")
@@ -137,7 +148,11 @@ cuda_add_library(uniad_kernel SHARED
   ${KERNEL_FILES}
 )
 
-target_compile_options(uniad_kernel PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-arch=sm_${TARGET_GPU_SM}>)
+target_compile_options(uniad_kernel PRIVATE 
+
+$<$<COMPILE_LANGUAGE:CUDA>:-arch=sm_${TARGET_GPU_SM} -Xcompiler -Wno-error=return-type>
+$<$<COMPILE_LANGUAGE:CXX>:-Wno-error=return-type>
+)
 
 target_link_libraries(uniad_kernel
   libcudart.so

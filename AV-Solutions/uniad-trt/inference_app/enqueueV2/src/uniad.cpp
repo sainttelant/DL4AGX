@@ -87,6 +87,12 @@ void KernelImplement::forward_timer(const UniAD::KernelInput& inputs, UniAD::Ker
       std::vector<int> _shape = inputs.input_shapes.at(bindingName);
       _shape_product = std::accumulate(_shape.begin(), _shape.end(), 1, std::multiplies<int>());
       _dsize = sizeof(engine_->dtype(bindingName));
+      
+      assert(inputs_host_[ib] != nullptr);
+      assert(inputs.data_ptrs.at(bindingName) != nullptr);
+      assert(_shape_product > 0);
+      assert(_dsize > 0);  
+
       checkRuntime(cudaMemcpyAsync(inputs_host_[ib], inputs.data_ptrs.at(bindingName), _shape_product * _dsize, cudaMemcpyHostToHost, _stream));
       checkRuntime(cudaMemcpyAsync(inputs_device_[ib], inputs_host_[ib], _shape_product * _dsize, cudaMemcpyHostToDevice, _stream));
       // set dynamic shape

@@ -13,11 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.12)
 project(bev_deploy LANGUAGES C CXX CUDA)
 
-option(TARGET "x86_64")
 
+# change here according to your target
+set(TARGET "aarch64")
+find_package(CUDA REQUIRED)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_FLAGS "-fPIC -O0 -g")
 set(CMAKE_CXX_FLAGS "-fPIC -O0 -g")
@@ -86,6 +88,12 @@ set(plugins_cu_srcs ${CMAKE_CURRENT_SOURCE_DIR}/multi_scale_deform_attn/ms_defor
                     ${CMAKE_CURRENT_SOURCE_DIR}/rotate/rotateKernel.cu
                     ${CMAKE_CURRENT_SOURCE_DIR}/select_and_pad/select_and_pad_kernel.cu)
 
+if(${TARGET} MATCHES "aarch64")
+set(ARCH 86)
+else(${TARGET} MATCHES "x86_64")
+set (ARCH 87)
+endif()
+message(STATUS"arch is <<<<<<< "${ARCH})
 cuda_add_library(plugins_cu ${plugins_cu_srcs} OPTIONS -arch=sm_${ARCH})
 
 set_target_properties(plugins_cu PROPERTIES CUDA_ARCHITECTURES $ARCH)
