@@ -40,7 +40,7 @@
 // Add functions to visualize BBOX predictions and planning trajectories in the ImageArtist and BEVArtist
 
 #include <cuda_fp16.h>
-#include <cuosd.h>
+#include "cuosd.h"
 #include <math.h>
 #include <string.h>
 #include <algorithm>

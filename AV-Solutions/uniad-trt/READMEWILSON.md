@@ -41,8 +41,9 @@ ln -s /workspace/shared/nuscenes/ /workspace/UniAD/data/
 
 # build in host machine
 
-# build tensorrt plugin in folder of inference_app
-cmake .. -DTENSORRT_PATH=/usr/include/aarch64-linux-gnu/ && make -j4
+# build tensorrt plugin in folder of inference_app of enqueueV3
+
+cmake .. -DTENSORRT_PATH=/usr/include/aarch64-linux-gnu/ -DTARGET_GPU_SM=86 && make -j4
 
 
 MIN=901
