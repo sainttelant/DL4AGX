@@ -40,6 +40,7 @@ export TRT_ROOT=/usr/include/x86_64-linux-gnu/
 cd /workspace/Bev/DL4AGX/AV-Solutions/vad-trt/plugins/build 
 
 # set build target in cmakelist.txt 
+set platform of x86_64 in CMakeLists.txt 
 cmake ..
 
 
@@ -47,6 +48,13 @@ cmake ..
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/include/x86_64-linux-gnu/
 export PATH=$PATH:/usr/bin
 
+# prepare Int8 calibrator cache in export_eval in x86_64-linux-gnu/
+python generate_calib_cache.py \
+        --demo-dir demo_data/ \
+        --onnx-dir scratch/ \
+        --output-dir scratch/calibration/ 
+        --build-engine
+       
 # save engine file
 trtexec --onnx=scratch/vadv1.extract_img_feat/sim_vadv1.extract_img_feat.onnx \
         --staticPlugins=../plugins/build/libplugins.so \

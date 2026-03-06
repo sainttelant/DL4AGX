@@ -18,7 +18,7 @@ project(bev_deploy LANGUAGES C CXX CUDA)
 
 
 # be attention: set build target here before deploying in targets
-set(TARGET "aarch64")
+set(TARGET "x86_64")
 find_package(CUDA REQUIRED)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_FLAGS "-fPIC -O0 -g")
